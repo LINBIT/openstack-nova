@@ -182,7 +182,7 @@ class InjectionInfo(collections.namedtuple(
 VOLUME_DRIVERS = {
     'iscsi': 'nova.virt.libvirt.volume.iscsi.LibvirtISCSIVolumeDriver',
     'iser': 'nova.virt.libvirt.volume.iser.LibvirtISERVolumeDriver',
-    'local': 'nova.virt.libvirt.volume.volume.LibvirtVolumeDriver',
+    'local': 'nova.virt.libvirt.volume.local.LibvirtLocalVolumeDriver',
     'fake': 'nova.virt.libvirt.volume.volume.LibvirtFakeVolumeDriver',
     'rbd': 'nova.virt.libvirt.volume.net.LibvirtNetVolumeDriver',
     'nfs': 'nova.virt.libvirt.volume.nfs.LibvirtNFSVolumeDriver',
