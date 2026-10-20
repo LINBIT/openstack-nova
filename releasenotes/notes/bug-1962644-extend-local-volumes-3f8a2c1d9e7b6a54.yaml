@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Extending an attached volume that uses the ``local`` connection type, such
+    as those provided by the LINSTOR or FusionStorage Cinder drivers, now
+    resizes the disk seen by the guest. See `bug 1962644`_ for details.
+
+    .. _bug 1962644: https://bugs.launchpad.net/nova/+bug/1962644

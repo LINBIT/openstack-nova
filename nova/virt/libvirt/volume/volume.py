@@ -16,11 +16,14 @@
 
 """Volume drivers for libvirt."""
 
+from os_brick import initiator
+from os_brick.initiator import connector
 from oslo_log import log as logging
 
 import nova.conf
 from nova import exception
 from nova import profiler
+from nova import utils
 from nova.virt import block_device as driver_block_device
 from nova.virt.libvirt import config as vconfig
 
@@ -170,6 +173,16 @@ class LibvirtVolumeDriver(LibvirtBaseVolumeDriver):
         conf.source_type = "block"
         conf.source_path = connection_info['data']['device_path']
         return conf
+
+    def extend_volume(self, connection_info, instance, requested_size):
+        """Return the current size of the already resized device."""
+        local_connector = connector.InitiatorConnector.factory(
+            initiator.LOCAL, utils.get_root_helper())
+        new_size = local_connector.extend_volume(connection_info['data'])
+        LOG.debug("Extend local volume %s; new_size=%s",
+                  connection_info['data']['device_path'],
+                  new_size, instance=instance)
+        return new_size
 
 
 class LibvirtFakeVolumeDriver(LibvirtBaseVolumeDriver):
