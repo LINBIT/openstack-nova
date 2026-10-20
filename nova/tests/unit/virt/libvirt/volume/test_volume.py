@@ -16,6 +16,7 @@
 from unittest import mock
 
 import ddt
+from os_brick import initiator
 from oslo_utils.fixture import uuidsentinel as uuids
 
 from nova import exception
@@ -377,6 +378,22 @@ class LibvirtVolumeTestCase(LibvirtISCSIVolumeBaseTestCase):
         self.assertEqual('luks', encryption.attrib['format'])
         self.assertEqual('passphrase', secret.attrib['type'])
         self.assertEqual(SECRET_UUID, secret.attrib['uuid'])
+
+    @mock.patch('nova.utils.get_root_helper', return_value='sudo')
+    @mock.patch('os_brick.initiator.connector.InitiatorConnector.factory')
+    def test_libvirt_volume_driver_extend(self, mock_factory, mock_helper):
+        libvirt_driver = volume.LibvirtVolumeDriver(self.fake_host)
+        connection_info = {'data': {'device_path': '/foo'}}
+        mock_extend = mock_factory.return_value.extend_volume
+        mock_extend.return_value = 20 * 1024 ** 3
+
+        new_size = libvirt_driver.extend_volume(
+            connection_info, mock.sentinel.instance,
+            mock.sentinel.requested_size)
+
+        self.assertEqual(20 * 1024 ** 3, new_size)
+        mock_factory.assert_called_once_with(initiator.LOCAL, 'sudo')
+        mock_extend.assert_called_once_with(connection_info['data'])
 
     def test_libvirt_volume_driver_encryption_missing_secret(self):
         fake_host = mock.Mock(spec=host.Host)
